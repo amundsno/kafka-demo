@@ -1,3 +1,14 @@
 spring:
   application:
     name: kafka-demo
+  kafka:
+    bootstrap-servers: kafka:9093
+    consumer:
+      group-id: loggers
+      auto-offset-reset: earliest
+
+my-properties:
+  topic-name: my-topic
+  partitions: 3
+  replication-factor: 1
+  messages-per-request: 10

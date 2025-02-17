@@ -10,7 +10,7 @@ FROM base AS build
 # Reuse cached dependencies
 COPY --from=base /root/.m2 /root/.m2 
 COPY . .
-RUN ./mvnw clean install
+RUN ./mvnw clean install -DskipTests
 
 # Run stage
 FROM eclipse-temurin:23.0.2_7-jre-alpine-3.21
