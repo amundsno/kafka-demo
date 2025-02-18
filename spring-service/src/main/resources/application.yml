@@ -2,9 +2,9 @@ spring:
   application:
     name: kafka-demo
   kafka:
-    bootstrap-servers: kafka:9093
+    bootstrap-servers: kafka-01:9093
     consumer:
-      group-id: loggers
+      group-id: my-loggers
       auto-offset-reset: earliest
 
 my-properties:

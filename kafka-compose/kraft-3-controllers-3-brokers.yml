@@ -1,0 +1,104 @@
+# See ./kraft-1-node.yml and ./kraft-3-nodes.yml for more detailed comments
+
+# In this setup, we will have 3 controllers and 3 brokers
+services:
+  kafka-controller-01:
+    image: apache/kafka:latest
+    container_name: kafka-controller-01
+    environment:
+      # Define CONTROLLER listener only
+      KAFKA_LISTENERS: CONTROLLER://kafka-controller-01:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_NODE_ID: 1
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+      
+      # This node will only be a controller
+      KAFKA_PROCESS_ROLES: controller
+
+      # All controller nodes will be part of the raft quorum
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091
+  
+  kafka-controller-02:
+    image: apache/kafka:latest
+    container_name: kafka-controller-02
+    environment:
+      # Same as for kafka-controller-01 except for node ID and kafka-controller-2 as network address
+      KAFKA_LISTENERS: CONTROLLER://kafka-controller-02:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_NODE_ID: 2
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091
+  
+  kafka-controller-03:
+    image: apache/kafka:latest
+    container_name: kafka-controller-03
+    environment:
+      # Same as for kafka-controller-01 except for node ID and kafka-controller-3 as network address
+      KAFKA_LISTENERS: CONTROLLER://kafka-controller-03:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_NODE_ID: 3
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091
+  
+  kafka-01:
+    image: apache/kafka:latest
+    container_name: kafka-01
+    ports:
+      # Only expose port on broker for EXTERNAL communication
+      - "9092:9092"
+    environment:
+      # Same setup as for kafka-01 in ./kraft-3-nodes.yml, except we do not list the CONTROLLER listener.
+      # However, the CONTROLLER_LISTENER_NAME and corresponding security protocol are required.
+      # The broker-only nodes (observers) use controller-logic to forward metadata, they are just not part of the quorum voters.
+      KAFKA_LISTENERS: EXTERNAL://:9092, DOCKER://kafka-01:9093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092, DOCKER://kafka-01:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT, DOCKER:PLAINTEXT, CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+
+      KAFKA_NODE_ID: 4
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+
+      # This node will only be a broker
+      KAFKA_PROCESS_ROLES: broker
+
+      # Refer only to the controller nodes in the raft quorum (same as above)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091
+
+      
+  
+  kafka-02:
+    image: apache/kafka:latest
+    container_name: kafka-02
+    environment:
+      # Same as for kafka-01 except no external listener, different node ID and kafka-02 as network address
+      KAFKA_LISTENERS: DOCKER://kafka-02:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka-02:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT, CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_NODE_ID: 5
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091
+
+  kafka-03:
+    image: apache/kafka:latest
+    container_name: kafka-03
+    environment:
+      # Same as for kafka-02 except node ID and kafka-03 as network address
+      KAFKA_LISTENERS: DOCKER://kafka-03:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka-03:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT, CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_NODE_ID: 6
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-01:9091, 2@kafka-controller-02:9091, 3@kafka-controller-03:9091

@@ -1,0 +1,36 @@
+# kafka-01 will be both broker and controller
+services:
+  kafka-01:
+    image: apache/kafka:latest
+    container_name: kafka-01
+    ports:  
+      # Expose ports for EXTERNAL communication (i.e. outside of the Docker network)
+      - "9092:9092"
+    
+    environment:
+      # Define listeners
+        # EXTERNAL    - outside Docker network (from 0.0.0.0 from Kafka's POV)
+        # DOCKER      - within Docker network (i.e. internal)
+        # CONTROLLER  - controller communication (i.e. internal)
+      KAFKA_LISTENERS: EXTERNAL://:9092, DOCKER://kafka-01:9093, CONTROLLER://kafka-01:9091
+      
+      # Listeners to broadcast to others
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092, DOCKER://kafka-01:9093
+      
+      # Security protocol for each listener (PLAINTEXT = non-encrypted)
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT, DOCKER:PLAINTEXT, CONTROLLER:PLAINTEXT
+
+      # The listener for controller and inter-broker communication (defiend above)
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER 
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      
+      # KRaft settings:
+      KAFKA_NODE_ID: 1 # Unique within the cluster
+      CLUSTER_ID: EYunGpaGT4u1iThtQKjVQA # Unique for the cluster
+      KAFKA_PROCESS_ROLES: broker, controller # This node will be both broker and controller
+      
+      # Raft controllers - the ones responsible for managing the cluster metadata. In this case, only the node itself.
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9091 
+
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

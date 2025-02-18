@@ -1,37 +1,16 @@
+include:
+  - ./kafka-compose/kraft-1-node.yml
+  # - ./kafka-compose/kraft-3-nodes.yml
+  # - ./kafka-compose/kraft-3-controllers-3-brokers.yml
+
 services:
   spring-service:
     build: ./spring-service
     container_name: spring-service
     ports:
       - 8080:8080
-  
-  kafka:
-    image: apache/kafka-native
-    container_name: kafka-broker-01
-    ports:
-      # Ports exposed for external (HOST) communication
-      - "9092:9092"
-    environment:
-      # Do not auto create topics - we will configure using Spring
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
 
-      # Define listeners for both DOCKER and HOST communication
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
-
-      # Settings required for KRaft mode
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
-
-      # Listener to use for broker-to-broker communication (within Docker Network)
-      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
-
-      # Required for a single node cluster
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  
+  # Convenient UI for managing the kafka service
   kafka-ui:
     container_name: kafka-ui
     image: ghcr.io/kafbat/kafka-ui:latest
@@ -40,6 +19,6 @@ services:
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-01:9093
     depends_on:
-      - kafka
+      - kafka-01
