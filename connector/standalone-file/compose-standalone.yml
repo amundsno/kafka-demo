@@ -1,0 +1,10 @@
+services:
+  kafka-connect-standalone-file:
+    container_name: kafka-connect-standalone-file
+    build: .
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka-01
+    volumes:
+      - ./mnt:/mnt/tmp # File I/O
