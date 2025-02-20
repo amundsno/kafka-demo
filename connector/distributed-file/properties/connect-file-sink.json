@@ -1,0 +1,9 @@
+{
+    "name": "distributed-file-sink",
+    "config": {
+        "connector.class": "FileStreamSink",
+        "tasks.max": 3,
+        "file": "/mnt/tmp/my-file.sink.txt",
+        "topics": "distributed-file-connect"
+    }
+}

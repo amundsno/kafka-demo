@@ -1,0 +1,11 @@
+services:
+  kafka-connect-distributed-file:
+    build: .
+    ports:
+      - 8083
+    depends_on:
+      - kafka-01
+    deploy:
+      replicas: 4
+    volumes:
+      - ./mnt:/mnt/tmp # File I/O

@@ -1,11 +1,12 @@
 include:
   # KRaft clusters
-  - ./kafka-compose/kraft-1-node.yml
-  # - ./kafka-compose/kraft-3-nodes.yml
+  # - ./kafka-compose/kraft-1-node.yml
+  - ./kafka-compose/kraft-3-nodes.yml
   # - ./kafka-compose/kraft-3-controllers-3-brokers.yml
 
   # Connectors
-  - ./connector/standalone-file/compose.yml
+  # - ./connector/standalone-file/compose-standalone.yml
+  - ./connector/distributed-file/compose-distributed.yml
 
 services:
   spring-service:

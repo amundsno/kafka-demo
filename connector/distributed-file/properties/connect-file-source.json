@@ -1,0 +1,9 @@
+{
+    "name": "distributed-file-source",
+    "config": {
+        "connector.class": "FileStreamSource",
+        "tasks.max": 3,
+        "file": "/mnt/tmp/my-file.txt",
+        "topic": "distributed-file-connect"
+    }
+}
